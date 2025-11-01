@@ -17,18 +17,16 @@ flag_data_re = r"<span><span class=\"fi fi-(?P<flag>\w+)\"></span></span>"
 flag_data_re_compiled = re.compile(flag_data_re)
 
 # Naložimo html datoteke s podatki tekmovanj in jih predelamo v csv format
-all_parsed_data = [["Mesto", "Ime", "Single", "SingleRekord", "Average", "AverageRekord", "Drzava", "Poskusi", "ImeRunde", "IndeksRunde", "Leto"]] # Seznam s podatki iz vseh tekmovanj
+parsed_data = [["Mesto", "Ime", "Single", "SingleRekord", "Average", "AverageRekord", "Drzava", "Poskusi", "ImeRunde", "IndeksRunde", "Leto"]] # Seznam s podatki iz vseh tekmovanj
 for leto in range(2019, 2026):
 	results_file_url = f"datoteke/html/SlovenianNationals{leto}.html"
 	if os.path.exists(results_file_url): # Preverimo če ta datoteka sploh obstaja
 		with open(results_file_url, "r", encoding="utf-8") as file:
 			competition_page = file.read()
-			competition_parsed_data = [["Mesto", "Ime", "Single", "SingleRekord", "Average", "AverageRekord", "Drzava", "Poskusi", "ImeRunde", "IndeksRunde", "Leto"]] # Seznam v katerega bomo dodajali sezname podatkov (en seznam podatkov je ena vrstica v csv, ki vsebuje podatke o eni osebi in njenem uspehu v tej rundi)
 			competition_data = competition_data_re_compiled.search(competition_page).string # Izoliramo le del HTMLja, ki vsebuje tabelo z rezultati
 			rounds_data = rounds_data_re_compiled.finditer(competition_data) # Izoliramo vsako tabelo (rundo) s funkcijo finditer da lahko po njih iteriramo
 			round_index = 0 # Števec, ki nam s številko označi v kateri rundi smo, ime ne zadošča, saj se število rund razlikuje med tekmovanji
 			for round in rounds_data:
-				round_parsed_data = [["Mesto", "Ime", "Single", "SingleRekord", "Average", "AverageRekord", "Drzava", "Poskusi", "ImeRunde", "IndeksRunde", "Leto"]] # Seznam v katerega bomo shranjevali posamezne runde, ne celega tekmovanja
 				round_title = round.group("round_title") # Ime runde (npr. 3x3x3 Cube Final)
 				round_data = round.group("round_data") # Preostanek podatkov runde (tabela brez glave)
 				rows_data = rows_data_re_compiled.finditer(round_data) # Izoliramo in iteriramo po vsaki vrstici v tabeli
@@ -40,28 +38,12 @@ for leto in range(2019, 2026):
 					fields_data.append(round_title) # V seznam dodamo ime runde
 					fields_data.append(round_index) # V seznam dodamo številko runde
 					fields_data.append(leto)
-					competition_parsed_data.append(fields_data)
-					round_parsed_data.append(fields_data)
-					all_parsed_data.append(fields_data)
-
-				# Shranimo seznam seznamov za posamezne runde kot csv datoteko
-				round_file_url = f"datoteke/csv/round/{leto}_round_{round_index}.csv"
-				with open(round_file_url, "w", newline = "", encoding = "utf-8") as data_file: # Uporabimo newline ="", da ne gremo dvakrat v novo vrstico
-					writer = csv.writer(data_file)
-					writer.writerows(round_parsed_data)
-					print(f"Podatki shranjeni za {leto}_round_{round_index}.")
+					parsed_data.append(fields_data)
 				round_index += 1
-			
-        # Shranimo seznam seznamov za tekmovanja kot csv datoteko
-		comp_file_url = f"datoteke/csv/comp/SlovenianNationals{leto}.csv"
-		with open(comp_file_url, "w", newline = "", encoding = "utf-8") as data_file:
-			writer = csv.writer(data_file)
-			writer.writerows(competition_parsed_data)
-			print(f"Podatki shranjeni za Slovenian Nationals {leto}.")
 
 # Shranimo seznam vseh podatkov v csv datoteko
-all_file_url = f"datoteke/csv/comp/SlovenianNationals.csv"
+all_file_url = f"datoteke/csv/SlovenianNationals.csv"
 with open(all_file_url, "w", newline = "", encoding = "utf-8") as data_file:
 	writer = csv.writer(data_file)
-	writer.writerows(all_parsed_data)
+	writer.writerows(parsed_data)
 	print(f"Podatki shranjeni za Slovenian Nationals.")
