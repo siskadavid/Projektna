@@ -7,7 +7,7 @@ from selenium.common.exceptions import TimeoutException
 
 opts = Options()
 opts.add_argument("--headless=new")  # Selenium ne odpira browswer okna
-driver = webdriver.Chrome(options=opts)  # Selenium izbire Chrome kot browser
+driver = webdriver.Chrome(options=opts)  # Selenium izbere Chrome kot browser
 try:
 	for leto in range(2019, 2026): # Leta tekmovanj ki nas zanimajo
 		data_url = f"https://www.worldcubeassociation.org/competitions/SlovenianNationals{leto}/results/all?event=333" # Url template za Slovenian Nationals, 3x3x3 event

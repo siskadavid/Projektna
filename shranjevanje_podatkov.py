@@ -17,7 +17,7 @@ flag_data_re = r"<span><span class=\"fi fi-(?P<flag>\w+)\"></span></span>"
 flag_data_re_compiled = re.compile(flag_data_re)
 
 # Naložimo html datoteke s podatki tekmovanj in jih predelamo v csv format
-parsed_data = [["Mesto", "Ime", "Single", "SingleRekord", "Average", "AverageRekord", "Drzava", "Poskusi", "ImeRunde", "IndeksRunde", "Leto"]] # Seznam s podatki iz vseh tekmovanj
+parsed_data = [["Mesto", "Ime", "Single", "SingleRekord", "Average", "AverageRekord", "Drzava", "Poskusi", "ImeRunde", "Leto"]] # Seznam s podatki iz vseh tekmovanj
 for leto in range(2019, 2026):
 	results_file_url = f"datoteke/html/SlovenianNationals{leto}.html"
 	if os.path.exists(results_file_url): # Preverimo če ta datoteka sploh obstaja
@@ -25,7 +25,6 @@ for leto in range(2019, 2026):
 			competition_page = file.read()
 			competition_data = competition_data_re_compiled.search(competition_page).string # Izoliramo le del HTMLja, ki vsebuje tabelo z rezultati
 			rounds_data = rounds_data_re_compiled.finditer(competition_data) # Izoliramo vsako tabelo (rundo) s funkcijo finditer da lahko po njih iteriramo
-			round_index = 0 # Števec, ki nam s številko označi v kateri rundi smo, ime ne zadošča, saj se število rund razlikuje med tekmovanji
 			for round in rounds_data:
 				round_title = round.group("round_title") # Ime runde (npr. 3x3x3 Cube Final)
 				round_data = round.group("round_data") # Preostanek podatkov runde (tabela brez glave)
@@ -35,11 +34,9 @@ for leto in range(2019, 2026):
 					fields_data = fields_data_re_compiled.findall(row_data) # Shranimo vsako celico v vrstici kot element seznama
 					fields_data[1] = name_data_re_compiled.search(fields_data[1]).group("name") # Prilagodimo prvi element, da ostane le ime brez linka na WCA id
 					fields_data[6] = flag_data_re_compiled.search(fields_data[6]).group("flag") # Prilagodimo šesti element, da ostane le kratica zastave
+					parsed_data.append(fields_data) # V seznam dodamo ostale podatke
 					fields_data.append(round_title) # V seznam dodamo ime runde
-					fields_data.append(round_index) # V seznam dodamo številko runde
-					fields_data.append(leto)
-					parsed_data.append(fields_data)
-				round_index += 1
+					fields_data.append(leto) # V seznam dodamo leto tekmovanja
 
 # Shranimo seznam vseh podatkov v csv datoteko
 all_file_url = f"datoteke/csv/SlovenianNationals.csv"
