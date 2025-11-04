@@ -6,7 +6,6 @@ __pycache__/
 *.pyc
 
 # Jupyter
-.ipynb_checkpoints/
 .jupyter/
 
 # OS
